@@ -50,7 +50,7 @@ fn main() {
         ("C Z".to_string(), "A".to_string()),
     ]);
     
-    let filename = "example.txt".to_string();
+    let filename = "input.txt".to_string();
     let mut total_score = 0;
     if let Ok(lines) = read_lines(filename) {
         for line in lines {
@@ -73,21 +73,24 @@ fn main() {
                     current_score +=tmp_score;
                 }
             }
+            /*if let Some(tmp_score2) = rps_scores.get(vec[1])
+            {
+                println!("{:?}",vec[1]);
+                println!("{:?}",tmp_score2);
+                current_score+=tmp_score2;
+            }*/
             if let Some(tmp_score2) = outcome_scores2.get(vec[1])
             {
                 println!("{:?}",vec[1]);
                 println!("{:?}",tmp_score2);
                 current_score+=tmp_score2;
-
             }
             total_score +=current_score;
             current_score=0;
         }
     }
     println!("{:?}",total_score);
-
 }
-
 
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<fs::File>>>
 where P: AsRef<path::Path>, {
