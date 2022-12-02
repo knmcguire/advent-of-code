@@ -29,7 +29,7 @@ fn main() {
         ("C Z".to_string(), "Draw".to_string()),
     ]);
     
-    let filename = "example.txt".to_string();
+    let filename = "input.txt".to_string();
     let mut total_score = 0;
     if let Ok(lines) = read_lines(filename) {
         for line in lines {
