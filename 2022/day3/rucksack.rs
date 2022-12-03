@@ -5,7 +5,7 @@ use std::path::Path;
 fn main() {
     let alfabet_lower_upper = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     let mut total_priority = 0;
-    if let Ok(lines) = read_lines("./example.txt") {
+    if let Ok(lines) = read_lines("./input.txt") {
         for line in lines {
             let content = line.unwrap();
             let length = content.chars().count();
@@ -23,7 +23,7 @@ fn main() {
             }
             let priority = alfabet_lower_upper.find(common_letter);
             println!("Common letter {} with priority {}",common_letter, priority.unwrap());
-            total_priority += priority.unwrap();
+            total_priority += priority.unwrap()+1;
         }
     }
     println!("total score {}", total_priority);
