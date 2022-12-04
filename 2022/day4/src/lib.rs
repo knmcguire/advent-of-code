@@ -5,9 +5,7 @@ pub fn process_part1(input: &str) -> String {
     let mut fully_contained_set_count:u32 = 0;
     for line in input.lines()
     {
-
         let (range1_set, range2_set) = get_sets(line);
-        
         if range1_set.is_subset(&range2_set)
         { 
             fully_contained_set_count+=1;
@@ -22,8 +20,24 @@ pub fn process_part1(input: &str) -> String {
 }
 
 pub fn process_part2(input: &str) -> String {
-    let result = input;
-    result.to_string()
+    let mut intersecting_set_count:u32 = 0;
+    for line in input.lines()
+    {
+        let (range1_set, range2_set) = get_sets(line);
+        let range1_intersection: HashSet<_> = range1_set.intersection(&range2_set).collect();
+        let range2_intersection: HashSet<_> = range2_set.intersection(&range1_set).collect();
+
+        if range1_intersection.len()>0
+        { 
+            intersecting_set_count+=1;
+        }
+        else if range2_intersection.len()>0
+        { 
+            intersecting_set_count+=1;
+        }
+    }
+
+    intersecting_set_count.to_string()
 }
 
 fn get_sets(input: &str) -> (HashSet<i32>,HashSet<i32>)  {
