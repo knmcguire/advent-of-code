@@ -5,33 +5,17 @@ pub fn process_part1(input: &str) -> String {
     let mut fully_contained_set_count:u32 = 0;
     for line in input.lines()
     {
-        let mut split = line.trim().split(','); 
-        let mut vec = Vec::new();
-        vec = split.collect();
+
+        let (range1_set, range2_set) = get_sets(line);
         
-        println!("{:?}",vec);
-        let mut range1_vec: Vec<&str> = Vec::from(vec[0].split('-').collect());
-
-        //let mut range1_vec: Vec<str> =  vec[0].split('-').collect()[0];
-        let range1_left = range1_vec[0].to_digit(10).unwrap();
-        let range1_right = vec[1].to_digit(10).unwrap();
-        let range1: Vec<u32> = (range1_left..range1_right).map(u32::from).collect();
-        let range1_set: HashSet<u32> = HashSet::from_iter(range1);
-        let range2_left = vec[1].chars().nth(0).unwrap().to_digit(10).unwrap();
-        let range2_right = vec[1].chars().nth(2).unwrap().to_digit(10).unwrap();
-        let range2: Vec<u32> = (range2_left..range2_right).map(u32::from).collect();
-        let range2_set: HashSet<u32> = HashSet::from_iter(range2);
-
-
         if range1_set.is_subset(&range2_set)
         { 
             fully_contained_set_count+=1;
         }
-        if range2_set.is_subset(&range1_set)
+        else if range2_set.is_subset(&range1_set)
         { 
             fully_contained_set_count+=1;
         }
-        dbg!(fully_contained_set_count);
     }
 
     fully_contained_set_count.to_string()
@@ -40,6 +24,24 @@ pub fn process_part1(input: &str) -> String {
 pub fn process_part2(input: &str) -> String {
     let result = input;
     result.to_string()
+}
+
+fn get_sets(input: &str) -> (HashSet<i32>,HashSet<i32>)  {
+    let  vec: Vec<&str> = input.trim().split(',').collect(); 
+
+    let range1_vec: Vec<&str> = vec[0].split('-').collect();
+    let range1_left = range1_vec[0].parse::<i32>().unwrap();
+    let range1_right = range1_vec[1].parse::<i32>().unwrap();
+    let range1 = range1_left..range1_right+1;
+    let range1_set: HashSet<i32> = range1.collect();
+
+    let range2_vec: Vec<&str> = vec[1].split('-').collect();
+    let range2_left = range2_vec[0].parse::<i32>().unwrap();
+    let range2_right = range2_vec[1].parse::<i32>().unwrap();
+    let range2 = range2_left..range2_right+1;
+    let range2_set: HashSet<i32> = range2.collect();
+
+    return (range1_set, range2_set)
 }
 
 
