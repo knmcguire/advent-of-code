@@ -76,10 +76,9 @@ mod tests {
         assert_eq!(result, "2");
     }
 
-    #[ignore]
     #[test]
     fn part2_works() {
         let result = process_part2(INPUT);
-        assert_eq!(result, "");
+        assert_eq!(result, "4");
     }
 }
