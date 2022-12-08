@@ -43,7 +43,7 @@ fn main() {
         for c in line_str.chars() {
             row.push(c.to_digit(10).unwrap() as i32);
         }
-        println!("{:?}", row);
+        //println!("{:?}", row);
 
         matrix.push(row);
     }
@@ -60,6 +60,7 @@ fn main() {
     println!{"{:?}, {:?}", matrix.len(), matrix[0].len()};
 
     let mut count2 = 0;
+    let mut highest_score = 0;
 
     // Got through all the indices of the matrix, avoiding the rows and columns
     // that are on the outsides of the matrix
@@ -82,9 +83,31 @@ fn main() {
                 count2 += 1;
             }
 
+            //println!("{}, {} {}", matrix[i][j], i, j);
+            // Find the first number in the vector that is similar or larger than the current number in the matrix
+            // and indicate the index of that number. 
+            let right_equal_or_larger = right.iter().position(|&x| x >= matrix[i][j]).map_or(right.len(), |x| (x+1) as usize);
+            let left_equal_or_larger = left.iter().position(|&x| x >= matrix[i][j]).map_or(left.len(), |x| (x+1) as usize);
+            let up_equal_or_larger = up.iter().position(|&x| x >= matrix[i][j]).map_or(up.len(), |x| (x+1) as usize);
+            let down_equal_or_larger = down.iter().position(|&x| x >= matrix[i][j]).map_or(down.len(), |x| (x+1) as usize);
+
+
+            // If the indices return None, replace value by the lenght of the vector
+
+            // parse a usize to int
+            
+            // Multiply all the indeces that are not None and replace the None values with the size of 
+            // the vector
+            let total_multiplied = right_equal_or_larger * left_equal_or_larger * up_equal_or_larger * down_equal_or_larger;
+            if total_multiplied > highest_score {
+                highest_score = total_multiplied;
+            }
+            
 
         }
     }
 
-    println!("count1: {} count2 {} total {}", count1, count2, count1 + count2);
+    println!("Part1 count1: {} count2 {} total {}", count1, count2, count1 + count2);
+    println!("part2 {}" , highest_score);
+
 }
