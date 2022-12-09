@@ -80,14 +80,12 @@ fn tail_postion_based_on_head_postion(x_head: usize, y_head: usize, x_tail: usiz
         }
     } 
 
-
-
     (x_tail_new, y_tail_new)
 }
 
 fn update_head_position(matrix_head: &mut Vec<Vec<char>>, matrix_tail: &mut Vec<Vec<Vec<char>>>, matrix_tail_visits: &mut Vec<Vec<char>>, command: &str, steps: usize){
 
-    println!("command: {}, steps: {}", command, steps);
+    //println!("command: {}, steps: {}", command, steps);
     let mut ix : i32 = 0;
     let mut iy : i32 = 0;
     match command {
@@ -123,13 +121,14 @@ fn update_head_position(matrix_head: &mut Vec<Vec<char>>, matrix_tail: &mut Vec<
             let x_pos_t = (xt as i32 + (xt_new )) as usize;
             let y_pos_t = (yt as i32 + (yt_new )) as usize;
             matrix_tail[k][x_pos_t][y_pos_t] = 'T';
-            if k == matrix_tail.len() {
+            if k == matrix_tail.len()-1 {
                 matrix_tail_visits[x_pos_t][y_pos_t] = '#';
             }
             x_pos = x_pos_t.clone();
             y_pos = y_pos_t.clone();
         }
-        merge_print_matrix(matrix_head, matrix_tail);
+        //merge_print_matrix(matrix_head, matrix_tail);
+
     }
 }
 
@@ -147,6 +146,7 @@ fn merge_print_matrix(matrix_head: &mut Vec<Vec<char>>, matrix_tail: &mut Vec<Ve
 
     let mut main_matrix: Vec<Vec<char>> = vec![vec!['.'; matrix_head[0].len()]; matrix_head.len()];
     main_matrix[0][0] = 's';
+
 
     let tail_length = matrix_tail.len();
     // merge the head and tail matrices into the main matrix
@@ -186,8 +186,6 @@ fn count_amount_of_certain_characters_in_matrix(matrix: &mut Vec<Vec<char>>, cha
 fn determine_maximum_sizes_of_matrix_based_on_commands( lines: &mut Lines<BufReader<File>>) -> (usize, usize) {
     let mut max_x : i32 = 0;
     let mut max_y : i32 = 0;
-    let mut min_x : i32 = 0;
-    let mut min_y : i32 = 0;
     let mut x : i32 = 0;
     let mut y : i32 = 0;
     for line in lines {
@@ -211,17 +209,16 @@ fn determine_maximum_sizes_of_matrix_based_on_commands( lines: &mut Lines<BufRea
 
         }
         if x.abs() > max_x {
-            max_x = x;
+            max_x = x.abs();
         }
         if y.abs() > max_y {
-            max_y = y;
+            max_y = y.abs();
         }
-
 
 
     }
 
-    let buffer = 4;
+    let buffer = 100;
     ((max_x * 2) as usize + buffer, (max_y * 2) as usize + buffer)
 }
  
@@ -232,8 +229,11 @@ fn main() {
     let mut file_str = File::open(&args[1]).unwrap();
     let mut reader = BufReader::new(file_str).lines();
 
-    let (mut xsize, mut ysize) = determine_maximum_sizes_of_matrix_based_on_commands(&mut reader);
+    //let (mut xsize, mut ysize) = determine_maximum_sizes_of_matrix_based_on_commands(&mut reader);
+    let mut xsize = 1000;
+    let mut ysize = 1000;
     let tail_length = 9;
+    println!("xsize: {}, ysize: {}", xsize, ysize);
 
     //define a matrix of 255x255 indices of '.'
     //initialize a reference of a matrix
@@ -257,7 +257,7 @@ fn main() {
         let steps = vec_command[1].parse::<usize>().unwrap();
 
         update_head_and_tail_positions(&mut matrix_head, &mut matrix_tail, &mut matrix_tail_visits, command, steps);
-        merge_print_matrix(&mut matrix_head, &mut matrix_tail);
+        //merge_print_matrix(&mut matrix_head, &mut matrix_tail);
 
         println!("{}", line_number);
         line_number += 1;
