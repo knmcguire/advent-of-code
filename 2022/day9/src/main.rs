@@ -1,4 +1,4 @@
-use std::io::{BufRead, BufReader};
+use std::io::{BufRead, BufReader, Lines};
 use std::fs::{File};
 
 fn print_a_matrix_and_flip_vertically(matrix: &Vec<Vec<char>>) {
@@ -85,7 +85,7 @@ fn tail_postion_based_on_head_postion(x_head: usize, y_head: usize, x_tail: usiz
     (x_tail_new, y_tail_new)
 }
 
-fn update_head_position(matrix_head: &mut Vec<Vec<char>>, matrix_tail: &mut Vec<Vec<char>>, matrix_tail_visits: &mut Vec<Vec<char>>, command: &str, steps: usize){
+fn update_head_position(matrix_head: &mut Vec<Vec<char>>, matrix_tail: &mut Vec<Vec<Vec<char>>>, matrix_tail_visits: &mut Vec<Vec<char>>, command: &str, steps: usize){
 
     println!("command: {}, steps: {}", command, steps);
     let mut ix : i32 = 0;
@@ -111,30 +111,31 @@ fn update_head_position(matrix_head: &mut Vec<Vec<char>>, matrix_tail: &mut Vec<
 
     }
     let (x,y) = remove_previous_head_position_and_get_previous_position(matrix_head);
-
-
-    let (mut xt, mut yt) = remove_previous_tail_position_and_get_previous_position(matrix_tail);
     for i in 1..steps+1 {
         remove_previous_head_position(matrix_head);
-        let x_pos = (x as i32 + (ix * (i as i32))) as usize;
-        let y_pos = (y as i32 + (iy * (i as i32))) as usize;
+        let mut x_pos = (x as i32 + (ix * (i as i32))) as usize;
+        let mut y_pos = (y as i32 + (iy * (i as i32))) as usize;
         matrix_head[x_pos][y_pos] = 'H';
-        remove_previous_tail_position(matrix_tail);
-        let (xt_new, yt_new) = tail_postion_based_on_head_postion(x_pos, y_pos, xt, yt);
-        let x_pos_t = (xt as i32 + (xt_new )) as usize;
-        let y_pos_t = (yt as i32 + (yt_new )) as usize;
-        matrix_tail[x_pos_t][y_pos_t] = 'T';
-        matrix_tail_visits[x_pos_t][y_pos_t] = '#';
-        xt = x_pos_t;
-        yt = y_pos_t;
-
-        //merge_print_matrix(matrix_head, matrix_tail);
+        for k in 0..matrix_tail.len() {
+            let (mut xt, mut yt) = remove_previous_tail_position_and_get_previous_position(&mut matrix_tail[k]);
+            remove_previous_tail_position(&mut matrix_tail[k]);
+            let (xt_new, yt_new) = tail_postion_based_on_head_postion(x_pos, y_pos, xt, yt);
+            let x_pos_t = (xt as i32 + (xt_new )) as usize;
+            let y_pos_t = (yt as i32 + (yt_new )) as usize;
+            matrix_tail[k][x_pos_t][y_pos_t] = 'T';
+            if k == matrix_tail.len() {
+                matrix_tail_visits[x_pos_t][y_pos_t] = '#';
+            }
+            x_pos = x_pos_t.clone();
+            y_pos = y_pos_t.clone();
+        }
+        merge_print_matrix(matrix_head, matrix_tail);
     }
 }
 
 
 
-fn update_head_and_tail_positions(matrix_head: &mut Vec<Vec<char>>, matrix_tail: &mut Vec<Vec<char>>,matrix_tail_visits: &mut Vec<Vec<char>>, command: &str, steps: usize) {
+fn update_head_and_tail_positions(matrix_head: &mut Vec<Vec<char>>, matrix_tail: &mut Vec<Vec<Vec<char>>>,matrix_tail_visits: &mut Vec<Vec<char>>, command: &str, steps: usize) {
 
     // update head position
     update_head_position(matrix_head, matrix_tail, matrix_tail_visits, command, steps);
@@ -142,22 +143,27 @@ fn update_head_and_tail_positions(matrix_head: &mut Vec<Vec<char>>, matrix_tail:
 }
 
 // merge the head and tail matrices into the a single matrix and print it
-fn merge_print_matrix(matrix_head: &mut Vec<Vec<char>>, matrix_tail: &mut Vec<Vec<char>>) {
+fn merge_print_matrix(matrix_head: &mut Vec<Vec<char>>, matrix_tail: &mut Vec<Vec<Vec<char>>>) {
 
     let mut main_matrix: Vec<Vec<char>> = vec![vec!['.'; matrix_head[0].len()]; matrix_head.len()];
     main_matrix[0][0] = 's';
 
+    let tail_length = matrix_tail.len();
     // merge the head and tail matrices into the main matrix
     for i in 0..matrix_head.len() {
         for j in 0..matrix_head[i].len() {
             if matrix_head[i][j] == 'H' {
                 main_matrix[i][j] = 'H';
             }
-            if matrix_tail[i][j] == 'T' {
-                main_matrix[i][j] = 'T';
+            for k in 0..tail_length {
+                if matrix_tail[k][i][j] == 'T' {
+                    main_matrix[i][j] = 'T';
+                }
             }
-            if matrix_head[i][j] == 'H' && matrix_tail[i][j] == 'T' {
-                main_matrix[i][j] = 'H';
+            for k in 0..tail_length {
+                if matrix_tail[k][i][j] == 'T' && matrix_head[i][j] == 'H' {
+                    main_matrix[i][j] = 'H';
+                }
             }
         }
     }
@@ -176,6 +182,48 @@ fn count_amount_of_certain_characters_in_matrix(matrix: &mut Vec<Vec<char>>, cha
     }
     count
 }
+
+fn determine_maximum_sizes_of_matrix_based_on_commands( lines: &mut Lines<BufReader<File>>) -> (usize, usize) {
+    let mut max_x : i32 = 0;
+    let mut max_y : i32 = 0;
+    let mut min_x : i32 = 0;
+    let mut min_y : i32 = 0;
+    let mut x : i32 = 0;
+    let mut y : i32 = 0;
+    for line in lines {
+        let line = line.unwrap();
+        let vec_command: Vec<&str> = line.split_whitespace().collect();
+        let mut command = vec_command[0];
+        match command {
+            "R" => {
+                y += vec_command[1].parse::<i32>().unwrap();
+            },
+            "L" => {
+                y -= vec_command[1].parse::<i32>().unwrap();
+            },
+            "U" => {
+                x += vec_command[1].parse::<i32>().unwrap();
+            },
+            "D" => {
+                x -= vec_command[1].parse::<i32>().unwrap();
+            },
+            _ => panic!("Invalid direction"),        
+
+        }
+        if x.abs() > max_x {
+            max_x = x;
+        }
+        if y.abs() > max_y {
+            max_y = y;
+        }
+
+
+
+    }
+
+    let buffer = 4;
+    ((max_x * 2) as usize + buffer, (max_y * 2) as usize + buffer)
+}
  
 
 fn main() {
@@ -184,16 +232,22 @@ fn main() {
     let mut file_str = File::open(&args[1]).unwrap();
     let mut reader = BufReader::new(file_str).lines();
 
-    //define a matrix of 255x255 indices of '.'
-    let size = 1000;
-    //initialize a reference of a matrix
-    let mut matrix_head: Vec<Vec<char>> = vec![vec!['.'; size]; size];
-    let mut matrix_tail: Vec<Vec<char>> = vec![vec!['.'; size]; size];
-    let mut matrix_tail_visits: Vec<Vec<char>> = vec![vec!['.'; size]; size];
-    matrix_tail_visits[size/2][size/2] = '#';
-    matrix_head[size/2][size/2] = 'H';
-    matrix_tail[size/2][size/2] = 'T';
+    let (mut xsize, mut ysize) = determine_maximum_sizes_of_matrix_based_on_commands(&mut reader);
+    let tail_length = 9;
 
+    //define a matrix of 255x255 indices of '.'
+    //initialize a reference of a matrix
+    let mut matrix_head: Vec<Vec<char>> = vec![vec!['.'; ysize]; xsize];
+    let mut matrix_tail: Vec<Vec<Vec<char>>> = vec![vec![vec!['.'; ysize]; xsize]; tail_length];
+    let mut matrix_tail_visits: Vec<Vec<char>> = vec![vec!['.'; ysize]; xsize];
+    matrix_tail_visits[ysize/2][xsize/2] = '#';
+    matrix_head[ysize/2][xsize/2] = 'H';
+
+    for k in 0..tail_length {
+        matrix_tail[k][ysize/2][xsize/2] = 'T';
+    }
+    let mut file_str = File::open(&args[1]).unwrap();
+    let mut reader = BufReader::new(file_str).lines();
     let mut line_number = 0;
     for line in reader {
         let line_str = line.unwrap();
@@ -203,7 +257,7 @@ fn main() {
         let steps = vec_command[1].parse::<usize>().unwrap();
 
         update_head_and_tail_positions(&mut matrix_head, &mut matrix_tail, &mut matrix_tail_visits, command, steps);
-        //merge_print_matrix(&mut matrix_head, &mut matrix_tail);
+        merge_print_matrix(&mut matrix_head, &mut matrix_tail);
 
         println!("{}", line_number);
         line_number += 1;
