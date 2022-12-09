@@ -60,13 +60,12 @@ fn remove_previous_tail_position(matrix_tail: &mut Vec<Vec<char>>) {
 fn tail_postion_based_on_head_postion(x_head: usize, y_head: usize, x_tail: usize, y_tail: usize) -> (i32, i32) {
     let mut x_tail_new = 0;
     let mut y_tail_new = 0;
-    println!("x_head: {}, y_head: {}, x_tail: {}, y_tail: {}", x_head, y_head, x_tail, y_tail);
+    //println!("x_head: {}, y_head: {}, x_tail: {}, y_tail: {}", x_head, y_head, x_tail, y_tail);
 
     // check if tail position is at more than 1 step away from head position to determine if the tail position needs to be updated
     if x_head as i32  >= x_tail as i32 - 1 && x_head as i32 <= x_tail as i32 + 1  && y_head as i32 >= y_tail as i32 - 1 && y_head as i32<= y_tail as i32 + 1 {
         // tail position is at most 1 step away from head position
         // do nothing
-        println!("do nothing")
     } else {
         // change the tail position with one step closer to head position in x y and diagonal directions
         if x_head > x_tail {
@@ -129,7 +128,7 @@ fn update_head_position(matrix_head: &mut Vec<Vec<char>>, matrix_tail: &mut Vec<
         xt = x_pos_t;
         yt = y_pos_t;
 
-        merge_print_matrix(matrix_head, matrix_tail);
+        //merge_print_matrix(matrix_head, matrix_tail);
     }
 }
 
@@ -186,14 +185,16 @@ fn main() {
     let mut reader = BufReader::new(file_str).lines();
 
     //define a matrix of 255x255 indices of '.'
-    let size = 8;
+    let size = 1000;
     //initialize a reference of a matrix
     let mut matrix_head: Vec<Vec<char>> = vec![vec!['.'; size]; size];
     let mut matrix_tail: Vec<Vec<char>> = vec![vec!['.'; size]; size];
     let mut matrix_tail_visits: Vec<Vec<char>> = vec![vec!['.'; size]; size];
-    matrix_tail_visits[0][0] = '#';
+    matrix_tail_visits[size/2][size/2] = '#';
+    matrix_head[size/2][size/2] = 'H';
+    matrix_tail[size/2][size/2] = 'T';
 
-
+    let mut line_number = 0;
     for line in reader {
         let line_str = line.unwrap();
         let vec_command: Vec<&str> = line_str.split_whitespace().collect();
@@ -202,9 +203,10 @@ fn main() {
         let steps = vec_command[1].parse::<usize>().unwrap();
 
         update_head_and_tail_positions(&mut matrix_head, &mut matrix_tail, &mut matrix_tail_visits, command, steps);
-        merge_print_matrix(&mut matrix_head, &mut matrix_tail);
+        //merge_print_matrix(&mut matrix_head, &mut matrix_tail);
 
-
+        println!("{}", line_number);
+        line_number += 1;
 
     }
 
