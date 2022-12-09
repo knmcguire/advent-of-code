@@ -73,7 +73,6 @@ fn main() {
             let down = get_vector_numbers_in_direction(&matrix, i, j, "down");
 
             // Compare the highest number of a vector with the current number
-
             let right_max = right.iter().max().unwrap();
             let left_max = left.iter().max().unwrap();
             let up_max = up.iter().max().unwrap();
@@ -91,10 +90,6 @@ fn main() {
             let up_equal_or_larger = up.iter().position(|&x| x >= matrix[i][j]).map_or(up.len(), |x| (x+1) as usize);
             let down_equal_or_larger = down.iter().position(|&x| x >= matrix[i][j]).map_or(down.len(), |x| (x+1) as usize);
 
-
-            // If the indices return None, replace value by the lenght of the vector
-
-            // parse a usize to int
             
             // Multiply all the indeces that are not None and replace the None values with the size of 
             // the vector
