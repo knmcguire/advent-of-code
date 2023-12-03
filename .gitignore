@@ -1,2 +1,9 @@
 *.exe
 *.pdb
+*.lock
+*.toml
+*.json
+*.TAG
+*.cargo-lock
+*.d
+
