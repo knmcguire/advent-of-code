@@ -96,6 +96,7 @@ fn part2(input: &str) {
                         total_green = green;
                     }
                 } else {
+                    println!("Error: color not found");
                 }
             }
 
