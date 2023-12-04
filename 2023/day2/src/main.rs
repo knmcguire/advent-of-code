@@ -109,7 +109,7 @@ fn part2(input: &str) {
 
 fn main() {
     // Input strings from text file
-    let input = std::fs::read_to_string("example1.txt").unwrap();
+    let input = std::fs::read_to_string("input.txt").unwrap();
     // find out what type input to be input into a function
     part1(&input);
     part2(&input);
