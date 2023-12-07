@@ -189,6 +189,20 @@ fn part2(input: &str) {
     println!("valid_numbers_and_symbol: {:?}", valid_numbers_and_symbol);
     println!("valid_numbers_and_symbol2: {:?}", valid_numbers_and_symbol2);
 
+    // find the valid numbers with the same symbol id and multiply them together
+    let mut sum = 0;
+    for i in 0..valid_numbers_and_symbol2.len() {
+        let mut symbol_index = valid_numbers_and_symbol2[i][1] as usize;
+        let mut product = 1;
+        for j in i..valid_numbers_and_symbol2.len() {
+            if symbol_index == valid_numbers_and_symbol2[j][1] as usize {
+                product *= valid_numbers_and_symbol2[j][0];
+            }
+        }
+        sum += product;
+    }
+    println!("Day3 Part 2 -- Total sum of valid part numbers: {}", sum);
+
 }
 
 
