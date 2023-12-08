@@ -100,18 +100,17 @@ fn part2(input: &str) {
     // get the indices of the 'symbol' in the grid in a 2d vector
     let mut symbol_indices: Vec<Vec<usize>> = Vec::new();
     for i in 0..grid.len() {
-        let mut row: Vec<usize> = Vec::new();
-        let mut found_symbol = false;
         for j in 0..grid[i].len() {
+
             if grid[i][j] == '*' {
+                let mut row: Vec<usize> = Vec::new();
                 row.push(i);
                 row.push(j);
-                found_symbol = true;
+                symbol_indices.push(row);
+
             }
         }
-        if found_symbol {
-            symbol_indices.push(row);
-        }
+
     }
 
 
@@ -189,17 +188,34 @@ fn part2(input: &str) {
     println!("valid_numbers_and_symbol: {:?}", valid_numbers_and_symbol);
     println!("valid_numbers_and_symbol2: {:?}", valid_numbers_and_symbol2);
 
+    //sort valid_numbers_and_symbol2 by symbol id
+    valid_numbers_and_symbol2.sort_by(|a, b| a[1].cmp(&b[1]));
+
+
     // find the valid numbers with the same symbol id and multiply them together
     let mut sum = 0;
+    let got_product = false;
+    let mut used_symbol_indices: Vec<usize> = Vec::new();
     for i in 0..valid_numbers_and_symbol2.len() {
         let mut symbol_index = valid_numbers_and_symbol2[i][1] as usize;
-        let mut product = 1;
+        let mut product = valid_numbers_and_symbol2[i][0];
+        let mut got_product = false;
         for j in i..valid_numbers_and_symbol2.len() {
-            if symbol_index == valid_numbers_and_symbol2[j][1] as usize {
+
+
+            if symbol_index == valid_numbers_and_symbol2[j][1] as usize && i != j && !used_symbol_indices.contains(&symbol_index){
                 product *= valid_numbers_and_symbol2[j][0];
+                println!("product: {}", product);
+                //println!("product: {}", product);
+                used_symbol_indices.push(symbol_index);
+                got_product = true;
+                break;
             }
         }
-        sum += product;
+        if got_product {
+            sum += product;
+        }
+
     }
     println!("Day3 Part 2 -- Total sum of valid part numbers: {}", sum);
 
@@ -228,7 +244,7 @@ fn part1(input: &str) {
 
 fn main()  {
     // Get string from input text
-    let input = std::fs::read_to_string("example1.txt").unwrap();
+    let input = std::fs::read_to_string("input.txt").unwrap();
 
     part1(&input);
     part2(&input);
