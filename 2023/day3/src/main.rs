@@ -17,7 +17,6 @@ fn print_grid(grid: &Vec<Vec<char>>) -> std::io::Result<()> {
 
     // Flush the output to ensure it gets displayed
     stdout().flush()
-
 }
 
 fn input_to_vector(input: &str) -> Vec<Vec<char>> {
@@ -33,70 +32,7 @@ fn input_to_vector(input: &str) -> Vec<Vec<char>> {
     grid
 }
 
-
-
-
-fn collect_numbers_if_connected_to_symbol(grid: &Vec<Vec<char>>, look_for_one: bool , symbol: char) -> Vec<i32> {
-
-    let mut valid_numbers: Vec<i32> = Vec::new();
-    for i in 0..grid.len() {
-        let mut j = 0;
-        while j < grid[i].len() {
-            let mut valid_number = false;
-            if grid[i][j].is_numeric() {
-                let mut number = String::new();
-                let mut k = j;
-                while k < grid[j].len() && grid[i][k].is_numeric() {
-                    // Get the row and column items around the numberf
-                    number.push(grid[i][k]);
-                    for l in i.saturating_sub(1)..=i+1 {
-                        for m in k.saturating_sub(1)..=k+1 {
-                            if l < grid.len() && m < grid[i].len() {
-                                // if character is not numeric and not a '.', print something
-                                // if there is nothing around the number that is not a number or a '.', it is a invalid number
-                                if grid[l][m].is_numeric() || grid[l][m] == '.' {
-                                } else {
-                                    if look_for_one {
-                                        if grid[l][m] == symbol {
-                                            valid_number = true;
-                                        }
-                                    } else {
-                                        valid_number = true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    k += 1;
-                }
-                if valid_number {
-                    valid_numbers.push(number.parse::<i32>().unwrap());
-                }
-                j = k;
-            } else {
-                j += 1;
-            }
-        }
-    }
-    valid_numbers
-}
-
-// go through grid, and find number sequences like in part1. For each number sequence, check if it is connected to a symbol
-// if it is, add it to a vector
-
-
-fn part2(input: &str) {
-    let grid = input_to_vector(input);
-    //find coordinates of symbol '*'
-    let mut symbol_coordinates: Vec<(usize, usize)> = Vec::new();
-    for i in 0..grid.len() {
-        for j in 0..grid[i].len() {
-            if grid[i][j] == '*' {
-                symbol_coordinates.push((i, j));
-            }
-        }
-    }
-
+fn collect_numbers_if_connected_to_symbol(grid: &Vec<Vec<char>>, look_for_one: bool , symbol: char) -> Vec<Vec<i32>> {
     // get the indices of the 'symbol' in the grid in a 2d vector
     let mut symbol_indices: Vec<Vec<usize>> = Vec::new();
     for i in 0..grid.len() {
@@ -110,12 +46,9 @@ fn part2(input: &str) {
 
             }
         }
-
     }
 
-
     let mut valid_numbers_and_symbol: Vec<Vec<i32>> = Vec::new();
-    let look_for_one = true;
     for i in 0..grid.len() {
         let mut j = 0;
         while j < grid[i].len() {
@@ -146,6 +79,7 @@ fn part2(input: &str) {
                                         }
                                     } else {
                                         valid_number = true;
+
                                     }
                                 }
                             }
@@ -167,6 +101,28 @@ fn part2(input: &str) {
             }
         }
     }
+    valid_numbers_and_symbol
+}
+
+// go through grid, and find number sequences like in part1. For each number sequence, check if it is connected to a symbol
+// if it is, add it to a vector
+
+
+fn part2(input: &str) {
+    let grid = input_to_vector(input);
+    //find coordinates of symbol '*'
+    let mut symbol_coordinates: Vec<(usize, usize)> = Vec::new();
+    for i in 0..grid.len() {
+        for j in 0..grid[i].len() {
+            if grid[i][j] == '*' {
+                symbol_coordinates.push((i, j));
+            }
+        }
+    }
+
+
+
+    let valid_numbers_and_symbol = collect_numbers_if_connected_to_symbol(&grid, true, '*');
 
     // go through valid_number_and_symbol and remove any entry where the symbol id only appears once
     let mut valid_numbers_and_symbol2: Vec<Vec<i32>> = Vec::new();
@@ -184,13 +140,8 @@ fn part2(input: &str) {
     }
 
 
-    println!("symbol_indices: {:?}", symbol_indices);
-    println!("valid_numbers_and_symbol: {:?}", valid_numbers_and_symbol);
-    println!("valid_numbers_and_symbol2: {:?}", valid_numbers_and_symbol2);
-
     //sort valid_numbers_and_symbol2 by symbol id
     valid_numbers_and_symbol2.sort_by(|a, b| a[1].cmp(&b[1]));
-
 
     // find the valid numbers with the same symbol id and multiply them together
     let mut sum = 0;
@@ -202,11 +153,8 @@ fn part2(input: &str) {
         let mut got_product = false;
         for j in i..valid_numbers_and_symbol2.len() {
 
-
             if symbol_index == valid_numbers_and_symbol2[j][1] as usize && i != j && !used_symbol_indices.contains(&symbol_index){
                 product *= valid_numbers_and_symbol2[j][0];
-                println!("product: {}", product);
-                //println!("product: {}", product);
                 used_symbol_indices.push(symbol_index);
                 got_product = true;
                 break;
@@ -215,7 +163,6 @@ fn part2(input: &str) {
         if got_product {
             sum += product;
         }
-
     }
     println!("Day3 Part 2 -- Total sum of valid part numbers: {}", sum);
 
@@ -227,12 +174,12 @@ fn part1(input: &str) {
     // put each character in a 2d vector
     let grid = input_to_vector(input);
 
-    let valid_numbers = collect_numbers_if_connected_to_symbol(&grid, false, '*');
-    //print_grid(&grid);
-
-    // Go through the grid character for character
-    // If the character is a number, collect the next 2 characters
-
+    let valid_numbers_and_symbols = collect_numbers_if_connected_to_symbol(&grid, false, '*');
+    //get first number row and put it seperately in a vector
+    let mut valid_numbers: Vec<i32> = Vec::new();
+    for i in 0..valid_numbers_and_symbols.len() {
+        valid_numbers.push(valid_numbers_and_symbols[i][0]);
+    }
 
     // sum of valid numbers is
     let mut sum = 0;
@@ -248,6 +195,4 @@ fn main()  {
 
     part1(&input);
     part2(&input);
-
-
 }
